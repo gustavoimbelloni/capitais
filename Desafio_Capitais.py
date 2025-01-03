@@ -1,3 +1,6 @@
+import streamlit as st
+
+# Dados dos estados e capitais
 Estados_e_Capitais = {
     "Acre": "Rio Branco",
     "Alagoas": "Maceió",
@@ -28,37 +31,44 @@ Estados_e_Capitais = {
     "Tocantins": "Palmas"
 }
 
-quer_continuar = True
-rodadas = 0
-acertos = 0
+# Interface do jogo
+st.title("Jogo: Qual é a capital do estado?")
+st.write("Teste seus conhecimentos sobre as capitais do Brasil!")
 
-for estado, capital in Estados_e_Capitais.items():
-        if not quer_continuar:
-            break
+# Inicialização
+if "estado_atual" not in st.session_state:
+    st.session_state.estado_atual = None
+    st.session_state.rodadas = 0
+    st.session_state.acertos = 0
 
-        rodadas += 1
-        print(f'\n -> Qual a Capital do Estado {estado}?')
+# Selecionar um estado aleatório
+import random
+if st.session_state.estado_atual is None:
+    st.session_state.estado_atual = random.choice(list(Estados_e_Capitais.keys()))
 
-        resposta = input ('Sua Resposta: ')
-        if resposta.lower() == capital.lower():
-            print('Resposta Correta!')
-            acertos += 1
-        else:
-            print(f'Resposta Errada! O Correto seria {capital}')
+estado = st.session_state.estado_atual
+capital_correta = Estados_e_Capitais[estado]
 
-        while True:
-            opcao = input('Deseja continuar? (s/n)').lower()
-            if opcao not in ['s', 'n']:
-                print('Responda apenas com "s" para sim ou "n" para não.')
-                continue
-            elif opcao == 'n':
-                quer_continuar = False
-            break
+# Exibir o estado
+st.write(f"Qual é a capital do estado **{estado}**?")
 
-if rodadas > 0:  # Evitar divisão por zero
-    porc = acertos / rodadas * 100
-else:
-    porc = 0
+# Entrada do usuário
+resposta = st.text_input("Sua resposta:")
 
-print(f'Você acertou {acertos} de {rodadas}')
-print(f'Porcentagem de acertos: {porc:.2f}%')
+# Verificar resposta
+if st.button("Enviar resposta"):
+    st.session_state.rodadas += 1
+    if resposta.lower() == capital_correta.lower():
+        st.session_state.acertos += 1
+        st.success("Resposta correta!")
+    else:
+        st.error(f"Resposta errada! A capital correta é **{capital_correta}**.")
+    
+    # Escolher o próximo estado
+    st.session_state.estado_atual = random.choice(list(Estados_e_Capitais.keys()))
+
+# Exibir estatísticas
+st.write(f"Rodadas jogadas: {st.session_state.rodadas}")
+st.write(f"Acertos: {st.session_state.acertos}")
+if st.session_state.rodadas > 0:
+    st.write(f"Porcentagem de acertos: {st.session_state.acertos / st.session_state.rodadas * 100:.2f}%")
